@@ -4,7 +4,6 @@ import L from 'leaflet';
 // leaflet CSS imported globally in main.jsx
 import LocationCard from './LocationCard';
 
-// Fix default icon issue with Vite
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -18,51 +17,43 @@ function createMarkerIcon(status) {
   const symbol = status === 'confirmed' ? '🎄' : '?';
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
+    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
       <defs>
-        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.5"/>
+        <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.35"/>
         </filter>
       </defs>
-      <path d="M16 0 C7.163 0 0 7.163 0 16 C0 27 16 42 16 42 C16 42 32 27 32 16 C32 7.163 24.837 0 16 0Z"
-        fill="${color}" stroke="${borderColor}" stroke-width="2" filter="url(#shadow)"/>
-      <text x="16" y="22" text-anchor="middle" font-size="14" dominant-baseline="middle">${symbol}</text>
+      <path d="M18 0 C8.059 0 0 8.059 0 18 C0 30 18 48 18 48 C18 48 36 30 36 18 C36 8.059 27.941 0 18 0Z"
+        fill="${color}" stroke="${borderColor}" stroke-width="2.5" filter="url(#sh)"/>
+      <text x="18" y="24" text-anchor="middle" font-size="16" dominant-baseline="middle">${symbol}</text>
     </svg>`;
 
   return L.divIcon({
     html: svg,
     className: 'custom-marker',
-    iconSize: [32, 42],
-    iconAnchor: [16, 42],
-    popupAnchor: [0, -42],
+    iconSize: [36, 48],
+    iconAnchor: [18, 48],
+    popupAnchor: [0, -50],
   });
 }
 
 function FlyToLocation({ target }) {
   const map = useMap();
-  if (target) {
-    map.flyTo([target.lat, target.lng], 16, { duration: 1.2 });
-  }
+  if (target) map.flyTo([target.lat, target.lng], 16, { duration: 1.2 });
   return null;
 }
 
 export default function MapView({
   locations,
   flyToTarget,
+  isMobile,
+  onMarkerClick,
   getAverageRating,
   getRatingCount,
   getUserRating,
   onSubmitRating,
 }) {
   const markerRefs = useRef({});
-
-  const openPopup = (id) => {
-    const marker = markerRefs.current[id];
-    if (marker) marker.openPopup();
-  };
-
-  // Expose openPopup via a prop callback if needed
-  MapView.openPopupForId = openPopup;
 
   return (
     <MapContainer
@@ -87,16 +78,20 @@ export default function MapView({
           icon={createMarkerIcon(loc.status)}
           ref={el => { if (el) markerRefs.current[loc.id] = el; }}
           aria-label={`${loc.address}, ${loc.suburb}`}
+          eventHandlers={isMobile ? { click: () => onMarkerClick(loc) } : undefined}
         >
-          <Popup maxWidth={300} minWidth={300}>
-            <LocationCard
-              location={loc}
-              average={getAverageRating(loc.id)}
-              count={getRatingCount(loc.id)}
-              userRating={getUserRating(loc.id)}
-              onSubmitRating={onSubmitRating}
-            />
-          </Popup>
+          {/* Desktop only — Leaflet popup anchored to marker */}
+          {!isMobile && (
+            <Popup maxWidth={320} minWidth={320}>
+              <LocationCard
+                location={loc}
+                average={getAverageRating(loc.id)}
+                count={getRatingCount(loc.id)}
+                userRating={getUserRating(loc.id)}
+                onSubmitRating={onSubmitRating}
+              />
+            </Popup>
+          )}
         </Marker>
       ))}
     </MapContainer>

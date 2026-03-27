@@ -3,6 +3,7 @@ import Header from './components/Header';
 import FilterBar from './components/FilterBar';
 import MapView from './components/MapView';
 import Sidebar from './components/Sidebar';
+import MobileModal from './components/MobileModal';
 import { locations } from './data/locations';
 import { useRatings } from './hooks/useRatings';
 import { useWindowSize } from './hooks/useWindowSize';
@@ -14,6 +15,7 @@ export default function App() {
   const [showConfirmedOnly, setShowConfirmedOnly] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [flyToTarget, setFlyToTarget] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const { isMobile } = useWindowSize();
 
@@ -35,16 +37,7 @@ export default function App() {
     if (isMobile) setSidebarOpen(false);
   }
 
-  const sharedSidebarProps = {
-    locations: filteredLocations,
-    isOpen: sidebarOpen,
-    onToggle: () => setSidebarOpen(v => !v),
-    onViewOnMap: handleViewOnMap,
-    getAverageRating,
-    getUserRating,
-    totalCount: locations.length,
-    filteredCount: filteredLocations.length,
-  };
+  const ratingProps = { getAverageRating, getRatingCount, getUserRating, onSubmitRating: submitRating };
 
   return (
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -56,36 +49,55 @@ export default function App() {
         onToggleConfirmed={() => setShowConfirmedOnly(v => !v)}
       />
 
-      {/* Map + Sidebar layer */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', minHeight: 0 }}>
 
-        {/* Desktop: left sidebar panel */}
         {!isMobile && (
-          <Sidebar {...sharedSidebarProps} variant="desktop" />
+          <Sidebar
+            locations={filteredLocations}
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen(v => !v)}
+            onViewOnMap={handleViewOnMap}
+            totalCount={locations.length}
+            filteredCount={filteredLocations.length}
+            {...ratingProps}
+            variant="desktop"
+          />
         )}
 
-        {/* Map */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            left: !isMobile && sidebarOpen ? '320px' : 0,
-            transition: 'left 0.35s ease',
-          }}
-        >
+        <div style={{
+          position: 'absolute', inset: 0,
+          left: !isMobile && sidebarOpen ? '340px' : 0,
+          transition: 'left 0.35s ease',
+        }}>
           <MapView
             locations={filteredLocations}
             flyToTarget={flyToTarget}
-            getAverageRating={getAverageRating}
-            getRatingCount={getRatingCount}
-            getUserRating={getUserRating}
-            onSubmitRating={submitRating}
+            isMobile={isMobile}
+            onMarkerClick={loc => { setSelectedLocation(loc); setSidebarOpen(false); }}
+            {...ratingProps}
           />
         </div>
 
-        {/* Mobile: bottom sheet */}
         {isMobile && (
-          <Sidebar {...sharedSidebarProps} variant="mobile" />
+          <Sidebar
+            locations={filteredLocations}
+            isOpen={sidebarOpen}
+            onToggle={() => setSidebarOpen(v => !v)}
+            onViewOnMap={handleViewOnMap}
+            totalCount={locations.length}
+            filteredCount={filteredLocations.length}
+            {...ratingProps}
+            variant="mobile"
+          />
+        )}
+
+        {/* Mobile centred modal */}
+        {isMobile && selectedLocation && (
+          <MobileModal
+            location={selectedLocation}
+            onClose={() => setSelectedLocation(null)}
+            {...ratingProps}
+          />
         )}
       </div>
     </div>
