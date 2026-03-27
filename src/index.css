@@ -1,115 +1,215 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+/* ── Design tokens ───────────────────────────────────────────── */
 :root {
-  --xmas-red: #c0392b;
-  --xmas-green: #1a7a3c;
-  --xmas-gold: #f0c040;
-  --xmas-dark: #0d1f12;
-  --xmas-darker: #081510;
-  --xmas-card: #112318;
-  --xmas-border: #1e3a28;
-  --xmas-text: #e8f5e9;
-  --xmas-muted: #7eab8a;
+  --red:       #e63946;
+  --red-dark:  #a8232e;
+  --green:     #1e8a45;
+  --green-dark:#0d5c2a;
+  --green-bg:  #0a1f10;
+  --gold:      #ffd23f;
+  --gold-dim:  #c9a227;
+  --card-bg:   #0e2416;
+  --card-border:#1f3d28;
+  --surface:   #0c1d12;
+  --deeper:    #061009;
+  --text:      #eaf5ec;
+  --muted:     #7aaa87;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ── Reset ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background-color: var(--xmas-darker);
-  color: var(--xmas-text);
-  overflow: hidden;
-  height: 100vh;
+  background: var(--deeper);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  /* prevent pull-to-refresh on iOS */
+  overscroll-behavior: none;
 }
 
 #root {
-  height: 100vh;
+  height: 100dvh;        /* dynamic viewport height for mobile */
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* Leaflet overrides */
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--deeper); }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+
+/* ── Leaflet overrides ───────────────────────────────────────── */
 .leaflet-container {
-  background: #0a1a10 !important;
+  background: #091408 !important;
   font-family: 'DM Sans', sans-serif;
 }
 
 .leaflet-popup-content-wrapper {
-  background: var(--xmas-card) !important;
-  border: 1px solid var(--xmas-border) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  background: var(--card-bg) !important;
+  border: 2px solid var(--card-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,210,63,0.1) !important;
   padding: 0 !important;
   overflow: hidden;
 }
 
 .leaflet-popup-content {
   margin: 0 !important;
-  width: 300px !important;
+  /* fluid width: full on small, capped on big */
+  width: min(90vw, 320px) !important;
 }
 
-.leaflet-popup-tip {
-  background: var(--xmas-card) !important;
-}
+.leaflet-popup-tip { background: var(--card-bg) !important; }
 
 .leaflet-popup-close-button {
-  color: var(--xmas-muted) !important;
-  font-size: 20px !important;
+  color: var(--muted) !important;
+  font-size: 22px !important;
   top: 8px !important;
   right: 10px !important;
   z-index: 10;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+}
+.leaflet-popup-close-button:hover { color: var(--gold) !important; }
+
+/* ── Custom map markers ──────────────────────────────────────── */
+.custom-marker { cursor: pointer; transition: transform 0.2s ease; }
+.custom-marker:hover { transform: scale(1.25) !important; }
+
+/* ── Snowflake animation ─────────────────────────────────────── */
+@keyframes snowfall {
+  0%   { transform: translateY(-20px) rotate(0deg);   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(80px) rotate(360deg); opacity: 0; }
 }
 
-.leaflet-popup-close-button:hover {
-  color: white !important;
+@keyframes sway {
+  0%, 100% { margin-left: 0; }
+  50%       { margin-left: 12px; }
 }
 
-/* Custom marker styles */
-.custom-marker {
-  transition: transform 0.2s ease;
+.snowflake {
+  position: absolute;
+  pointer-events: none;
+  animation: snowfall linear infinite, sway ease-in-out infinite;
+  font-size: 14px;
+  opacity: 0;
+  user-select: none;
+}
+
+/* ── Twinkle ─────────────────────────────────────────────────── */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50%       { opacity: 1;   transform: scale(1.1); }
+}
+.twinkle { animation: twinkle ease-in-out infinite; }
+
+/* ── Glow pulse for gold accents ─────────────────────────────── */
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(255,210,63,0.3); }
+  50%       { text-shadow: 0 0 20px rgba(255,210,63,0.8), 0 0 40px rgba(255,210,63,0.3); }
+}
+.glow { animation: glow 2.5s ease-in-out infinite; }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  font-weight: 600;
   cursor: pointer;
+  border: none;
+  border-radius: var(--radius-sm);
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: var(--green);
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 15px;
+  box-shadow: 0 4px 14px rgba(30,138,69,0.4);
+}
+.btn-primary:hover { background: #23a352; box-shadow: 0 6px 20px rgba(30,138,69,0.5); }
+
+.btn-chip {
+  padding: 10px 16px;
+  font-size: 13px;
+  border-radius: 50px;
+  white-space: nowrap;
+  border: 1.5px solid var(--card-border);
+  background: transparent;
+  color: var(--muted);
+}
+.btn-chip.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(30,138,69,0.4);
+}
+.btn-chip.gold-active {
+  background: rgba(255,210,63,0.12);
+  border-color: var(--gold);
+  color: var(--gold);
 }
 
-.custom-marker:hover {
-  transform: scale(1.3) !important;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--xmas-darker);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--xmas-border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--xmas-muted);
-}
-
-/* Santa hat rating */
-.santa-hat-btn {
+/* ── Santa hat rating ────────────────────────────────────────── */
+.santa-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 20px;
-  padding: 2px;
-  transition: transform 0.15s ease;
+  font-size: 28px;     /* big touch target */
+  padding: 4px;
   line-height: 1;
+  transition: transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
+.santa-btn:hover, .santa-btn:active { transform: scale(1.35); }
 
-.santa-hat-btn:hover {
-  transform: scale(1.3);
+/* ── Bottom sheet (mobile sidebar) ──────────────────────────── */
+.bottom-sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: var(--surface);
+  border-top: 2px solid var(--card-border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+  transition: transform 0.35s cubic-bezier(0.34,1.1,0.64,1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
 }
+.bottom-sheet.closed { transform: translateY(calc(100% - 72px)); }
+.bottom-sheet.open   { transform: translateY(0); }
 
-/* Sidebar transition */
-.sidebar {
-  transition: transform 0.3s ease, width 0.3s ease;
+/* ── Input ───────────────────────────────────────────────────── */
+.search-input {
+  width: 100%;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px 12px 40px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
 }
+.search-input:focus { border-color: var(--green); }
+.search-input::placeholder { color: var(--muted); }

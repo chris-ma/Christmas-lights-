@@ -1,18 +1,21 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import Header from './components/Header';
 import FilterBar from './components/FilterBar';
 import MapView from './components/MapView';
 import Sidebar from './components/Sidebar';
-import { locations, REGIONS } from './data/locations';
+import { locations } from './data/locations';
 import { useRatings } from './hooks/useRatings';
+import { useWindowSize } from './hooks/useWindowSize';
 import './App.css';
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('All Regions');
   const [showConfirmedOnly, setShowConfirmedOnly] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [flyToTarget, setFlyToTarget] = useState(null);
+
+  const { isMobile } = useWindowSize();
 
   const allIds = useMemo(() => locations.map(l => l.id), []);
   const { submitRating, getAverageRating, getUserRating, getRatingCount } = useRatings(allIds);
@@ -29,10 +32,22 @@ export default function App() {
 
   function handleViewOnMap(loc) {
     setFlyToTarget({ ...loc, _ts: Date.now() });
+    if (isMobile) setSidebarOpen(false);
   }
 
+  const sharedSidebarProps = {
+    locations: filteredLocations,
+    isOpen: sidebarOpen,
+    onToggle: () => setSidebarOpen(v => !v),
+    onViewOnMap: handleViewOnMap,
+    getAverageRating,
+    getUserRating,
+    totalCount: locations.length,
+    filteredCount: filteredLocations.length,
+  };
+
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <FilterBar
         selectedRegion={selectedRegion}
@@ -43,25 +58,19 @@ export default function App() {
 
       {/* Map + Sidebar layer */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', minHeight: 0 }}>
-        <Sidebar
-          locations={filteredLocations}
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(v => !v)}
-          onViewOnMap={handleViewOnMap}
-          getAverageRating={getAverageRating}
-          getUserRating={getUserRating}
-          totalCount={locations.length}
-          filteredCount={filteredLocations.length}
-        />
 
+        {/* Desktop: left sidebar panel */}
+        {!isMobile && (
+          <Sidebar {...sharedSidebarProps} variant="desktop" />
+        )}
+
+        {/* Map */}
         <div
           style={{
             position: 'absolute',
-            top: 0,
-            left: sidebarOpen ? '300px' : '0',
-            right: 0,
-            bottom: 0,
-            transition: 'left 0.3s ease',
+            inset: 0,
+            left: !isMobile && sidebarOpen ? '320px' : 0,
+            transition: 'left 0.35s ease',
           }}
         >
           <MapView
@@ -73,6 +82,11 @@ export default function App() {
             onSubmitRating={submitRating}
           />
         </div>
+
+        {/* Mobile: bottom sheet */}
+        {isMobile && (
+          <Sidebar {...sharedSidebarProps} variant="mobile" />
+        )}
       </div>
     </div>
   );
