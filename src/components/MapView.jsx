@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 // leaflet CSS imported globally in main.jsx
@@ -23,7 +23,7 @@ function createMarkerIcon(status) {
           <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.35"/>
         </filter>
       </defs>
-      <path d="M18 0 C8.059 0 0 8.059 0 18 C0 30 18 48 18 48 C18 48 36 30 36 18 C36 8.059 27.941 0 18 0Z"
+      <path d="M18 0 C8.059 0 0 8.059 0 18 C0 30 18 48 18 48 C18 48 36 30 18 48 C18 48 36 30 36 18 C36 8.059 27.941 0 18 0Z"
         fill="${color}" stroke="${borderColor}" stroke-width="2.5" filter="url(#sh)"/>
       <text x="18" y="24" text-anchor="middle" font-size="16" dominant-baseline="middle">${symbol}</text>
     </svg>`;
@@ -37,9 +37,16 @@ function createMarkerIcon(status) {
   });
 }
 
+// Captures the Leaflet map instance into a ref
+function MapCapture({ mapRef }) {
+  const map = useMap();
+  useEffect(() => { mapRef.current = map; }, [map]);
+  return null;
+}
+
 function FlyToLocation({ target }) {
   const map = useMap();
-  if (target) map.flyTo([target.lat, target.lng], 16, { duration: 1.2 });
+  if (target) map.flyTo([target.lat, target.lng], 15, { duration: 1 });
   return null;
 }
 
@@ -53,7 +60,14 @@ export default function MapView({
   getUserRating,
   onSubmitRating,
 }) {
-  const markerRefs = useRef({});
+  const mapRef = useRef(null);
+
+  function handleMarkerClick(loc) {
+    if (!mapRef.current) { onMarkerClick(loc); return; }
+    // Pan to marker first, open modal once movement ends
+    mapRef.current.flyTo([loc.lat, loc.lng], 15, { duration: 0.7 });
+    mapRef.current.once('moveend', () => onMarkerClick(loc));
+  }
 
   return (
     <MapContainer
@@ -63,6 +77,7 @@ export default function MapView({
       zoomControl={true}
       aria-label="Interactive map of Sydney Christmas light displays"
     >
+      <MapCapture mapRef={mapRef} />
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -76,11 +91,9 @@ export default function MapView({
           key={loc.id}
           position={[loc.lat, loc.lng]}
           icon={createMarkerIcon(loc.status)}
-          ref={el => { if (el) markerRefs.current[loc.id] = el; }}
           aria-label={`${loc.address}, ${loc.suburb}`}
-          eventHandlers={isMobile ? { click: () => onMarkerClick(loc) } : undefined}
+          eventHandlers={isMobile ? { click: () => handleMarkerClick(loc) } : undefined}
         >
-          {/* Desktop only — Leaflet popup anchored to marker */}
           {!isMobile && (
             <Popup maxWidth={320} minWidth={320}>
               <LocationCard

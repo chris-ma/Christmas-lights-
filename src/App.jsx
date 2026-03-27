@@ -4,7 +4,8 @@ import FilterBar from './components/FilterBar';
 import MapView from './components/MapView';
 import Sidebar from './components/Sidebar';
 import MobileModal from './components/MobileModal';
-import { locations } from './data/locations';
+import { locations as staticLocations } from './data/locations';
+import { loadAdminLocations } from './data/adminLocations';
 import { useRatings } from './hooks/useRatings';
 import { useWindowSize } from './hooks/useWindowSize';
 import './App.css';
@@ -19,7 +20,9 @@ export default function App() {
 
   const { isMobile } = useWindowSize();
 
-  const allIds = useMemo(() => locations.map(l => l.id), []);
+  // Merge static + admin-added locations (admin ones appear at the end)
+  const locations = useMemo(() => [...staticLocations, ...loadAdminLocations()], []);
+  const allIds = useMemo(() => locations.map(l => l.id), [locations]);
   const { submitRating, getAverageRating, getUserRating, getRatingCount } = useRatings(allIds);
 
   const filteredLocations = useMemo(() => {
