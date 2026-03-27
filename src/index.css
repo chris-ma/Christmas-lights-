@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --xmas-red: #c0392b;
+  --xmas-green: #1a7a3c;
+  --xmas-gold: #f0c040;
+  --xmas-dark: #0d1f12;
+  --xmas-darker: #081510;
+  --xmas-card: #112318;
+  --xmas-border: #1e3a28;
+  --xmas-text: #e8f5e9;
+  --xmas-muted: #7eab8a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--xmas-darker);
+  color: var(--xmas-text);
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  background: #0a1a10 !important;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--xmas-card) !important;
+  border: 1px solid var(--xmas-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: 300px !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--xmas-card) !important;
+}
+
+.leaflet-popup-close-button {
+  color: var(--xmas-muted) !important;
+  font-size: 20px !important;
+  top: 8px !important;
+  right: 10px !important;
+  z-index: 10;
+}
+
+.leaflet-popup-close-button:hover {
+  color: white !important;
+}
+
+/* Custom marker styles */
+.custom-marker {
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.custom-marker:hover {
+  transform: scale(1.3) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--xmas-darker);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--xmas-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--xmas-muted);
+}
+
+/* Santa hat rating */
+.santa-hat-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 2px;
+  transition: transform 0.15s ease;
+  line-height: 1;
+}
+
+.santa-hat-btn:hover {
+  transform: scale(1.3);
+}
+
+/* Sidebar transition */
+.sidebar {
+  transition: transform 0.3s ease, width 0.3s ease;
+}
