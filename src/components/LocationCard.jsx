@@ -1,8 +1,8 @@
 import SantaHatRating from './SantaHatRating';
 
 const STATUS_STYLE = {
-  confirmed: { bg: '#1e8a45', label: '✓ Confirmed 2025' },
-  unconfirmed: { bg: '#555566', label: '? Unconfirmed' },
+  confirmed:   { bg: 'var(--green)',  text: '#fff', label: '✓ Confirmed 2025' },
+  unconfirmed: { bg: '#aaa',          text: '#fff', label: '? Unconfirmed' },
 };
 
 export default function LocationCard({ location, average, count, userRating, onSubmitRating }) {
@@ -11,7 +11,7 @@ export default function LocationCard({ location, average, count, userRating, onS
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", width: '100%' }}>
       {/* Hero image */}
-      <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', height: '175px', overflow: 'hidden' }}>
         <img
           src={location.imageUrl}
           alt={`Christmas lights at ${location.address}, ${location.suburb}`}
@@ -20,21 +20,20 @@ export default function LocationCard({ location, average, count, userRating, onS
             e.target.src = 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80';
           }}
         />
-        {/* Gradient overlay */}
+        {/* Soft gradient at bottom */}
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(14,36,22,0.85) 0%, transparent 50%)',
+          background: 'linear-gradient(to top, rgba(255,255,255,0.9) 0%, transparent 55%)',
         }} />
 
         {/* Status badge */}
         <span style={{
           position: 'absolute', top: '10px', left: '10px',
-          padding: '4px 10px',
-          borderRadius: '6px',
+          padding: '5px 12px',
+          borderRadius: '50px',
           fontSize: '11px', fontWeight: 700,
-          background: status.bg,
-          color: '#fff',
-          letterSpacing: '0.3px',
+          background: status.bg, color: status.text,
+          boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
         }}>
           {status.label}
         </span>
@@ -42,27 +41,26 @@ export default function LocationCard({ location, average, count, userRating, onS
         {/* Region badge */}
         <span style={{
           position: 'absolute', top: '10px', right: '10px',
-          padding: '4px 10px',
-          borderRadius: '6px',
+          padding: '5px 12px',
+          borderRadius: '50px',
           fontSize: '11px', fontWeight: 600,
-          background: 'rgba(0,0,0,0.65)',
-          color: '#ffd23f',
+          background: 'rgba(255,255,255,0.9)',
+          color: 'var(--text)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
         }}>
           {location.region}
         </span>
 
-        {/* Address on image */}
+        {/* Address on image bottom */}
         <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px' }}>
           <h3 style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: '17px', fontWeight: 700,
-            color: '#fff',
-            lineHeight: 1.2,
-            textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+            fontFamily: "'Fredoka', sans-serif",
+            fontSize: '19px', fontWeight: 700,
+            color: 'var(--text)', lineHeight: 1.2,
           }}>
             {location.address}
           </h3>
-          <p style={{ fontSize: '13px', color: '#b8d4bc', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+          <p style={{ fontSize: '13px', color: 'var(--muted)', fontWeight: 500 }}>
             {location.suburb} {location.postcode}
           </p>
         </div>
@@ -70,7 +68,7 @@ export default function LocationCard({ location, average, count, userRating, onS
 
       {/* Content */}
       <div style={{ padding: '14px 16px 16px' }}>
-        <p style={{ fontSize: '13px', color: '#b8d4bc', lineHeight: 1.6, marginBottom: '12px' }}>
+        <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.6, marginBottom: '12px' }}>
           {location.description}
         </p>
 
@@ -78,11 +76,10 @@ export default function LocationCard({ location, average, count, userRating, onS
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
           {location.displayHours && (
             <span style={{
-              fontSize: '12px', color: '#eaf5ec',
-              background: 'rgba(30,138,69,0.2)',
-              border: '1px solid rgba(30,138,69,0.35)',
-              borderRadius: '8px',
-              padding: '5px 10px',
+              fontSize: '12px', fontWeight: 600, color: 'var(--green-dark)',
+              background: 'var(--green-light)',
+              border: '2px solid var(--green)',
+              borderRadius: '50px', padding: '5px 12px',
               display: 'flex', alignItems: 'center', gap: '5px',
             }}>
               🕖 {location.displayHours}
@@ -90,11 +87,10 @@ export default function LocationCard({ location, average, count, userRating, onS
           )}
           {location.charity && (
             <span style={{
-              fontSize: '12px', color: '#ffd23f',
-              background: 'rgba(255,210,63,0.1)',
-              border: '1px solid rgba(255,210,63,0.25)',
-              borderRadius: '8px',
-              padding: '5px 10px',
+              fontSize: '12px', fontWeight: 600, color: 'var(--gold-dark)',
+              background: 'var(--gold-light)',
+              border: '2px solid var(--gold)',
+              borderRadius: '50px', padding: '5px 12px',
               display: 'flex', alignItems: 'center', gap: '5px',
             }}>
               ❤️ {location.charity}
@@ -103,7 +99,7 @@ export default function LocationCard({ location, average, count, userRating, onS
         </div>
 
         {/* Divider */}
-        <div style={{ borderTop: '1px solid #1f3d28', paddingTop: '14px' }}>
+        <div style={{ borderTop: '2px dashed var(--card-border)', paddingTop: '14px' }}>
           <SantaHatRating
             locationId={location.id}
             average={average}

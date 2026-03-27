@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+// leaflet CSS imported globally in main.jsx
 import LocationCard from './LocationCard';
 
 // Fix default icon issue with Vite
@@ -13,8 +13,8 @@ L.Icon.Default.mergeOptions({
 });
 
 function createMarkerIcon(status) {
-  const color = status === 'confirmed' ? '#1a7a3c' : '#555566';
-  const borderColor = status === 'confirmed' ? '#f0c040' : '#888899';
+  const color = status === 'confirmed' ? '#e63946' : '#aaaaaa';
+  const borderColor = status === 'confirmed' ? '#fff' : '#ddd';
   const symbol = status === 'confirmed' ? '🎄' : '?';
 
   const svg = `
@@ -68,12 +68,12 @@ export default function MapView({
     <MapContainer
       center={[-33.87, 151.21]}
       zoom={11}
-      style={{ flex: 1, width: '100%', minHeight: 0 }}
+      style={{ height: '100%', width: '100%' }}
       zoomControl={true}
       aria-label="Interactive map of Sydney Christmas light displays"
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         maxZoom={19}
       />
