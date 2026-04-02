@@ -63,10 +63,10 @@ export default function MapView({
   const mapRef = useRef(null);
 
   function handleMarkerClick(loc) {
-    if (!mapRef.current) { onMarkerClick(loc); return; }
-    // Pan to marker first, open modal once movement ends
-    mapRef.current.flyTo([loc.lat, loc.lng], 15, { duration: 0.7 });
-    mapRef.current.once('moveend', () => onMarkerClick(loc));
+    // Snap the map to the marker instantly (no animation = no jitter),
+    // then open the modal in the same tick.
+    mapRef.current?.setView([loc.lat, loc.lng], 15, { animate: false });
+    onMarkerClick(loc);
   }
 
   return (
